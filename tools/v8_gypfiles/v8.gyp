@@ -430,6 +430,11 @@
             '<(V8_ROOT)/src/builtins/mips/builtins-mips.cc',
           ],
         }],
+        ['v8_target_arch=="riscv64" or v8_target_arch=="riscv64"', {
+          'sources': [
+            '<(V8_ROOT)/src/builtins/riscv64/builtins-riscv64.cc',
+          ],
+        }],        
         ['v8_target_arch=="mips64" or v8_target_arch=="mips64el"', {
           'sources': [
             '<(V8_ROOT)/src/builtins/mips64/builtins-mips64.cc',
@@ -825,6 +830,11 @@
             '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"mips\\".*?sources \+= ")',
           ],
         }],
+        ['v8_target_arch=="riscv64"', {
+          'sources': [  ### gcmole(arch:riscv64) ###
+            '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"riscv64.*?sources \+= ")',
+          ],
+        }],        
         ['v8_target_arch=="mips64" or v8_target_arch=="mips64el"', {
           'sources': [  ### gcmole(arch:mips64el) ###
             '<!@pymod_do_main(GN-scraper "<(V8_ROOT)/BUILD.gn"  "\\"v8_base_without_compiler.*?v8_current_cpu == \\"mips64\\".*?sources \+= ")',
