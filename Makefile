@@ -853,7 +853,11 @@ else
 ifeq ($(findstring powerpc,$(shell uname -p)),powerpc)
 DESTCPU ?= ppc64
 else
+ifeq ($(findstring riscv64,$(shell uname -p)),riscv64)
+DESTCPU ?= riscv64
+else
 DESTCPU ?= x86
+endif
 endif
 endif
 endif
@@ -884,7 +888,11 @@ else
 ifeq ($(DESTCPU),s390x)
 ARCH=s390x
 else
+ifeq ($(DESTCPU),riscv64)
+ARCH=riscv64
+else
 ARCH=x86
+endif
 endif
 endif
 endif
