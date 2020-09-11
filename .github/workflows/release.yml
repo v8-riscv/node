@@ -15,15 +15,7 @@ jobs:
       - name: Build project
         run: |
           git submodule update --init --recursive
-          ./configure --cross-compiling --dest-cpu=riscv64  --verbose  --openssl-no-asm --build-v8-with-gn --prefix=/
-          mkdir -p node-${{ github.ref }}-linux-riscv64
-          make install DESTDIR=node-${{ github.ref }}-linux-riscv64 -j`nproc`
-          cp README.md LICENSE CHANGELOG.md node-${{ github.ref }}-linux-riscv64
-          tar -cf node-${{ github.ref }}-linux-riscv64.tar node-${{ github.ref }}-linux-riscv64
-          rm -f -r node-${{ github.ref }}-linux-riscv64
-          gzip -c -f -9 node-${{ github.ref }}-linux-riscv64.tar > node-${{ github.ref }}-linux-riscv64.tar.gz
-          xz -c -f -9e node-${{ github.ref }}-linux-riscv64.tar > node-${{ github.ref }}-linux-riscv64.tar.xz
-          rm -f node-${{ github.ref }}-linux-riscv64.tar
+          make binary DESTCPU=riscv64 CC=riscv64-unknown-linux-gnu-gcc CXX=riscv64-unknown-linux-gnu-g++ CC_host=gcc CXX_host=g++ CONFIG_FLAGS="--openssl-no-asm --build-v8-with-gn --cross-compiling" -j$(nproc)
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -34,6 +26,11 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+      - name: Get the version (git tag)
+        id: get_version
+        run: |
+          echo ${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -41,6 +38,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./node-${{ github.ref }}-linux-riscv64.tar.xz
-          asset_name: node-${{ github.ref }}-linux-riscv64.tar.xz
+          asset_path: ./node-${{ steps.get_version.outputs.VERSION }}-linux-riscv64.tar.xz
+          asset_name: node-${{ steps.get_version.outputs.VERSION }}-linux-riscv64.tar.xz
           asset_content_type: application/x-gtar
