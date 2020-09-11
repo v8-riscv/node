@@ -1,0 +1,46 @@
+on:
+  push:
+    tags:
+      - "v*-riscv64" # Push events to matching v*-riscv64, i.e. v14.8.0-riscv64
+
+name: Upload Release Asset
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Build project
+        run: |
+          git submodule update --init --recursive
+          ./configure --cross-compiling --dest-cpu=riscv64  --verbose  --openssl-no-asm --build-v8-with-gn --prefix=/
+          mkdir -p node-${{ github.ref }}-linux-riscv64
+          make install DESTDIR=node-${{ github.ref }}-linux-riscv64 -j`nproc`
+          cp README.md LICENSE CHANGELOG.md node-${{ github.ref }}-linux-riscv64
+          tar -cf node-${{ github.ref }}-linux-riscv64.tar node-${{ github.ref }}-linux-riscv64
+          rm -f -r node-${{ github.ref }}-linux-riscv64
+          gzip -c -f -9 node-${{ github.ref }}-linux-riscv64.tar > node-${{ github.ref }}-linux-riscv64.tar.gz
+          xz -c -f -9e node-${{ github.ref }}-linux-riscv64.tar > node-${{ github.ref }}-linux-riscv64.tar.xz
+          rm -f node-${{ github.ref }}-linux-riscv64.tar
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./node-${{ github.ref }}-linux-riscv64.tar.xz
+          asset_name: node-${{ github.ref }}-linux-riscv64.tar.xz
+          asset_content_type: application/x-gtar
