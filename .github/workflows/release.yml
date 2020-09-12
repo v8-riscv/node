@@ -10,6 +10,15 @@ jobs:
     name: Upload Release Asset
     runs-on: ubuntu-latest
     steps:
+      - name: Get the toolchain
+        run: |
+          sudo apt install gawk texinfo zlib1g-dev flex bison
+          git clone https://github.com/riscv/riscv-gnu-toolchain
+          cd riscv-gnu-toolchain
+          git submodule update --init --recursive
+          ./configure --prefix=/opt/riscv
+          sudo make linux -j8
+          echo "::add-path::/opt/riscv/bin"
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Build project
