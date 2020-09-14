@@ -10,7 +10,16 @@ jobs:
     name: Upload Release Asset
     runs-on: ubuntu-latest
     steps:
-      - name: Get the toolchain
+      - name: Cache the toolchain
+        id: cache-toolchain
+        uses: actions/cache@v2
+        env:
+          cache-name: riscv-toolchain
+        with:
+          path: /opt/riscv
+          key: 10.1.0
+      - name: Build the toolchain
+        if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
           sudo apt install gawk texinfo zlib1g-dev flex bison
           cd /tmp
