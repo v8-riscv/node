@@ -13,6 +13,7 @@ jobs:
       - name: Get the toolchain
         run: |
           sudo apt install gawk texinfo zlib1g-dev flex bison
+          cd /tmp
           git clone https://github.com/riscv/riscv-gnu-toolchain
           cd riscv-gnu-toolchain
           git submodule update --init --recursive
