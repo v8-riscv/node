@@ -29,9 +29,8 @@ jobs:
       - name: Get the version (git tag)
         id: get_version
         run: |
-          $version=(python tools/getnodeversion.py)
           echo ::set-output name=TAG::${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=VERSION::$version
+          echo ::set-output name=VERSION::$(python tools/getnodeversion.py)
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
